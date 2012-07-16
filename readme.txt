@@ -1,3 +1,6 @@
+﻿南开大学信息学院团委在线心理咨询平台
+
+
 model层：
 	user_model		用户的相关操作
 	message_model		私信的相关操作
@@ -10,6 +13,7 @@ controller层：
 	article		文章部分
 	message		私信部分
 	reservation	预约部分
+	user		用户部分
 
 
 view层：
@@ -23,3 +27,9 @@ view层：
 
 	admin文件夹	后台
 		同上
+
+
+
+所有后台数据的合法性验证全在controller层做，model层假设传入数据都是合法的。
+
+函数参数若是数组，则其中的项都可为空。
