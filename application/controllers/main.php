@@ -19,7 +19,9 @@ class main extends CI_Controller
 		var_dump($this->user_model->create_teacher($info));*/
 		
 		//测试老师登录
-		//var_dump($this->user_model->login('0910505','12345'));
+		//var_dump($this->user_model->login('0910505','12345',true));
+		//var_dump($this->user_model->is_login());
+		//var_dump($this->user_model->logout());
 		
 		//测试修改老师信息
 		/*$info=array(

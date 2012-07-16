@@ -2,6 +2,7 @@
 
 
 model层：
+
 	user_model		用户的相关操作
 	message_model		私信的相关操作
 	article_model		文章的相关操作
@@ -9,6 +10,7 @@ model层：
 
 
 controller层：
+
 	main		首页
 	article		文章部分
 	message		私信部分

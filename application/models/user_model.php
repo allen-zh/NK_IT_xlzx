@@ -1,39 +1,49 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-//update by L 2012.7.15
+//update by L 2012.7.16
 //更新内容:
-//全部
+//add get_info()
+//add is_login()
+//add login()
+//add logout()
+//add edit_student()
+//add edit_teacher()
 
 //----------------------------函数列表----------------------------
 /*
- * exist($id)
- * @id		需要判断的id
- * @return	0不存在|1学生ID|2老师ID
+ * exist($id)		判断ID是否存在
+ * @id			需要判断的id
+ * @return		0不存在|1学生ID|2老师ID
  * */
 /*
- * login($id,$pwd)
- * @id		登录id
- * @pwd		密码
- * @return	账户所有信息|错误信息
+ * login($id,$pwd,$remember=false)		用户登录
+ * @id			登录id
+ * @pwd			密码
+ * @remember	保持登录1个小时
+ * @return		账户所有信息|错误信息
  * */
 /*
- * logout()
- * @return null
+ * logout()		用户登出
+ * @return 		null
  * */
 /*
- * create_student($id,$nickname)
+ * is_login()	判断用户是否登入
+ * @return		false|账户信息
+ * */
+/*
+ * create_student($id,$nickname)	创建学生
  * @id			学生id
  * @nickname	学生昵称
  * @return		true|错误信息
  * */
 /*
- * edit_student($id,$new_nickname)
+ * edit_student($id,$new_nickname)		编辑学生
  * @id				学生id
  * @new_nickname	新昵称
  * @return			true|错误信息
  * */
 /*
- * create_teacher($array)
+ * create_teacher($array)		创建老师
  * @array	id				id
  * 			nickname		昵称
  * 			password		密码
@@ -43,7 +53,7 @@
  * @return		true|错误信息
  * */
 /*
- * edit_teacher($array)
+ * edit_teacher($array)			编辑老师
  * @array	nickname		昵称
  * 			password		密码
  * 			phone			电话
@@ -53,9 +63,9 @@
  * @return		true|错误信息
  * */
 /*
- * get_info($id)
+ * get_info($id)		获取账户信息
  * @id			账户id
- * @return		账户的所有信息
+ * @return		false|账户的所有信息
  * */
 //---------------------------------------------------------------
 
@@ -63,10 +73,10 @@ class user_model extends CI_model
 {
 	function exist($id)
 	{
-		$res=$this->db->query("select * from teacher where id=$id limit 1")->row_array();
+		$res=$this->db->query("select id from teacher where id=$id limit 1")->row_array();
 		if(empty($res))
 		{
-			$res=$this->db->query("select * from student where id=$id limit 1")->row_array();
+			$res=$this->db->query("select id from student where id=$id limit 1")->row_array();
 			if(empty($res))
 			{
 				return 0;
@@ -82,16 +92,23 @@ class user_model extends CI_model
 		}
 	}
 	
-	function login($id,$pwd)
+	function login($id,$pwd,$remember=false)
 	{
-		$id=$this->db->escape($id);
-		$res_id=$this->user_model->exist($id);
+		$id2=$this->db->escape($id);
+		$res_id=$this->user_model->exist($id2);
 		if($res_id==2)
 		{
-			$temp=$this->db->query("select * from teacher where id=$id limit 1")->row_array();
+			$temp=$this->db->query("select * from teacher where id=$id2 limit 1")->row_array();
 			if(md5($pwd.$temp['salt'])==$temp['password'])
 			{
-				$this->input->set_cookie('id', $id, 0);
+				if($remember)
+				{
+					$this->input->set_cookie('id', $id, 3600);
+				}
+				else
+				{
+					$this->input->set_cookie('id', $id, 0);
+				}
 				$this->session->set_userdata('id', $id);
 				return $temp;
 			}
@@ -102,7 +119,7 @@ class user_model extends CI_model
 		}
 		else
 		{
-			//向it服务器发送请求，根据返回值来继续操作
+			//向学院it服务器发送请求，验证学生的学号和密码，根据返回值来继续操作
 		}
 	}
 	
@@ -110,6 +127,21 @@ class user_model extends CI_model
 	{
 		$this->input->set_cookie('id', '', null);
 		$this->session->sess_destroy();
+	}
+	
+	function is_login()
+	{
+		$session_id=$this->session->userdata('id');
+		$cookie_id=$this->input->cookie('id',true);
+		if(!empty($session_id)&&!empty($cookie_id))
+		{
+			$temp=$this->user_model->get_info($session_id);
+			if($temp['id']==$cookie_id)
+			{
+				return $temp;
+			}
+		}
+		return false;
 	}
 	
 	function create_student($id,$nickname)
@@ -193,7 +225,8 @@ class user_model extends CI_model
 	function get_info($id)
 	{
 		$id=$this->db->escape($id);
-		switch($this->user_model->exist($id))
+		$temp=$this->user_model->exist($id);
+		switch($temp)
 		{
 			case 2:
 			{
