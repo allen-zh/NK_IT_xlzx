@@ -1,10 +1,18 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-//update by L 2012.7.15
+//update by ZH 2012.7.20
 //更新内容:
-//全部
+//add post()
+//add get()
+//add
 
 //----------------------------函数列表----------------------------
+/*
+ *action()
+ *
+ *
+ **/
+
 //---------------------------------------------------------------
 
 class article extends CI_Controller
@@ -33,4 +41,13 @@ class article extends CI_Controller
 			}
 		}
 	}
+	
+	function post($array){
+		
+	}
+	
+	function get($id){
+		
+	}
+	
 }
